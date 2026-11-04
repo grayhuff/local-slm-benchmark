@@ -1,0 +1,22 @@
+[project]
+name = "slmbench"
+version = "1.0.0"
+description = "Benchmark local open-weights SLMs (Ollama) against commercial APIs on speed, accuracy and cost."
+requires-python = ">=3.11"
+readme = "README.md"
+
+[tool.ruff]
+line-length = 130
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"

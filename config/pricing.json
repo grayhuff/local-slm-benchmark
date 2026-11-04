@@ -1,0 +1,40 @@
+{
+  "_meta": {
+    "currency": "USD",
+    "unit": "per 1M tokens",
+    "last_verified": "2026-11-04",
+    "tier": "Standard tier, short context, no prompt caching or batch discounts",
+    "sources": {
+      "openai": "https://developers.openai.com/api/docs/pricing",
+      "anthropic": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "google": "https://aistudio.google.com/docs/pricing"
+    },
+    "notes": "Prices change often. Edit this file or use the dashboard's Pricing tab. 'reasoning': true marks models that bill hidden thinking tokens as output and reject custom temperature."
+  },
+  "models": [
+    {"provider": "openai", "model": "gpt-4o-mini", "input_per_mtok": 0.15, "output_per_mtok": 0.60},
+    {"provider": "openai", "model": "gpt-4o", "input_per_mtok": 2.50, "output_per_mtok": 10.00},
+    {"provider": "openai", "model": "gpt-4.1-mini", "input_per_mtok": 0.40, "output_per_mtok": 1.60},
+    {"provider": "openai", "model": "gpt-4.1", "input_per_mtok": 2.00, "output_per_mtok": 8.00},
+    {"provider": "openai", "model": "gpt-5-nano", "input_per_mtok": 0.05, "output_per_mtok": 0.40, "reasoning": true},
+    {"provider": "openai", "model": "gpt-5-mini", "input_per_mtok": 0.25, "output_per_mtok": 2.00, "reasoning": true},
+    {"provider": "openai", "model": "gpt-5", "input_per_mtok": 1.25, "output_per_mtok": 10.00, "reasoning": true},
+    {"provider": "openai", "model": "gpt-5.6-luna", "input_per_mtok": 0.20, "output_per_mtok": 1.20, "reasoning": true},
+    {"provider": "openai", "model": "gpt-5.6-terra", "input_per_mtok": 2.00, "output_per_mtok": 12.00, "reasoning": true},
+    {"provider": "openai", "model": "gpt-5.6-sol", "input_per_mtok": 4.00, "output_per_mtok": 20.00, "reasoning": true},
+
+    {"provider": "anthropic", "model": "claude-haiku-5-5", "input_per_mtok": 0.10, "output_per_mtok": 0.50, "notes": "Rate for prompts up to 100k tokens"},
+    {"provider": "anthropic", "model": "claude-sonnet-5-5", "input_per_mtok": 2.00, "output_per_mtok": 10.00},
+    {"provider": "anthropic", "model": "claude-opus-5-5", "input_per_mtok": 4.00, "output_per_mtok": 20.00},
+    {"provider": "anthropic", "model": "claude-haiku-4-5", "input_per_mtok": 1.00, "output_per_mtok": 5.00},
+    {"provider": "anthropic", "model": "claude-sonnet-4-5", "input_per_mtok": 3.00, "output_per_mtok": 15.00},
+
+    {"provider": "google", "model": "gemini-2.5-flash-lite", "input_per_mtok": 0.10, "output_per_mtok": 0.40, "reasoning": true},
+    {"provider": "google", "model": "gemini-3.1-flash-lite", "input_per_mtok": 0.25, "output_per_mtok": 1.50, "reasoning": true},
+    {"provider": "google", "model": "gemini-3.8-flash", "input_per_mtok": 0.75, "output_per_mtok": 3.75, "reasoning": true, "notes": "Rises to $1.50 / $7.50 on 2027-01-01"},
+    {"provider": "google", "model": "gemini-4-argon", "input_per_mtok": 2.00, "output_per_mtok": 10.00, "reasoning": true, "notes": "Rises to $4.00 / $20.00 on 2026-12-01"},
+
+    {"provider": "demo", "model": "demo-api-mini", "input_per_mtok": 0.15, "output_per_mtok": 0.60, "notes": "Simulated model for demo mode"},
+    {"provider": "demo", "model": "demo-api-frontier", "input_per_mtok": 2.50, "output_per_mtok": 10.00, "notes": "Simulated model for demo mode"}
+  ]
+}

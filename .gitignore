@@ -1,0 +1,19 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Secrets
+.env
+.streamlit/secrets.toml
+
+# Run history (prompts + responses stay on your machine)
+runs/*.json
+!runs/.gitkeep
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

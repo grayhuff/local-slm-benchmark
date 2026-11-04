@@ -1,0 +1,12 @@
+# Runtime dependencies. Versions are floors at what this project is tested with.
+streamlit>=1.66,<2
+plotly>=7.1,<8
+pandas>=3.0,<4
+openai>=3.0,<4          # also drives Ollama, Gemini, OpenRouter and any OpenAI-compatible server
+anthropic>=2.0,<3
+httpx>=0.28             # Ollama's native /api/tags and /api/ps
+python-dotenv>=1.0
+psutil>=7.0             # optional: RAM/CPU in the System panel
+
+# Optional: load benchmark samples from Hugging Face (Prompt source → "Hugging Face sample")
+# datasets>=3.0
