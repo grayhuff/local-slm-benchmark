@@ -54,7 +54,7 @@ ollama serve   # leave running (the desktop app does this for you)
 
 # 2. Pull one or two small models
 ollama pull llama3.2:3b   # ~2 GB
-ollama pull qwen2.5:7b    # ~4.7 GB
+ollama pull qwen2.5:1.5b  # ~1 GB (or qwen2.5:7b, ~4.7 GB, if you have the disk and memory)
 ```
 
 Refresh the dashboard, switch off demo mode, and your pulled models appear under **Local · Ollama**.
@@ -75,22 +75,40 @@ python -m slmbench.cli run -m ollama:llama3.2:3b -m openai:gpt-4o-mini
 python -m slmbench.cli run --demo --prompts data/example_prompts.jsonl
 ```
 
-## Example results
+## Results on my machine
 
-_The table below is **simulated demo-mode output** (`python -m slmbench.cli run --demo`), included to show the format. Replace it with a run on your own hardware._
+Apple M2 Pro (16 GB unified memory) · Ollama 0.40.14 · 4-bit (Q4_K_M) weights · built-in 14-prompt suite × 3 repeats (84 requests, 0 errors) · temperature 0 · default system prompt · no judge model, so the two open-ended prompts are scored by keyword fallback.
 
-| Model               | Runs on   | Accuracy | TTFT p50 | Latency p50 | Tokens/s | Cost / 1k requests |
-| ------------------- | --------- | -------: | -------: | ----------: | -------: | -----------------: |
-| `demo-local-3b`     | On-device |      71% |    0.14s |       0.27s |      69  |          $0.000998 |
-| `demo-local-8b`     | On-device |      79% |    0.28s |       0.46s |      32  |           $0.00200 |
-| `demo-api-mini`     | API       |      86% |    0.77s |       0.88s |      89  |            $0.0168 |
-| `demo-api-frontier` | API       |     100% |    0.94s |       1.23s |      57  |             $0.278 |
+```bash
+python -m slmbench.cli run -m ollama:llama3.2:3b -m ollama:qwen2.5:1.5b --repeats 3
+```
 
-Recommendation generated for this run:
+| Model          | Accuracy | TTFT p50 | Latency p50 | Latency p95 | Tokens/s | Cold start | GPU memory | Electricity / 1k requests |
+| -------------- | -------: | -------: | ----------: | ----------: | -------: | ---------: | ---------: | ------------------------: |
+| `llama3.2:3b`  |  **90%** |    0.03s |       0.14s |       1.40s |       44 |       2.5s |     2.6 GB |                   $0.0011 |
+| `qwen2.5:1.5b` |      81% |    0.02s |   **0.08s** |       0.35s |   **93** |       1.6s |     1.2 GB |               **$0.0003** |
 
-> **The API earns its price on this task.** `demo-api-frontier` is **21 pts more accurate** than the best local model, `demo-local-8b` (100% vs 79%), for $0.276 more per 1k requests. On this hardware `demo-local-8b` also responded **2.7× faster** (median 0.46s vs 1.23s).
+Electricity uses the default 60 W × $0.17/kWh, an upper bound (see the metrics table below).
 
-Hybrid router for the same run: route instruction-following and open-ended prompts to the 3B model, reasoning to the 8B model, and knowledge and extraction to the API → **same 100% accuracy, 74% cheaper, 64% of traffic on-device**.
+| Category (prompts)        | `llama3.2:3b` | `qwen2.5:1.5b` |
+| ------------------------- | ------------: | -------------: |
+| Extraction (2)            |          100% |            67% |
+| Instruction following (3) |           89% |           100% |
+| Knowledge (3)             |          100% |           100% |
+| Open-ended (2)            |          100% |            50% |
+| Reasoning (4)             |           75% |            75% |
+
+**What the misses were.** Every answer was identical across the three repeats, so these are stable failures, not noise:
+
+- Llama answered the bat-and-ball puzzle with `110` (the ball costs 5¢) and listed the primary colors of light as "Red, Orange, Yellow".
+- Qwen said 100 machines need `20` minutes to make 100 widgets (it's 5). Asked to extract a contact from *"…loop in Maria Chen (maria.chen@example.com)… Thanks, Dev"*, it returned the sign-off name and **invented** `dev@example.com`. That's the kind of confident wrong answer a format-only check would never catch.
+- Qwen's open-ended answers got half credit for leaving out the key term the keyword fallback looks for ("wavelength", "self-hosted"). A judge model (`--judge`) would grade those more fairly.
+
+**Small models are sensitive to the system prompt.** With no system prompt (`--system ""`), Qwen scored **86%** instead of 81%. The one-line default ("You are a helpful, concise assistant.") fixed its bat-and-ball answer but broke the widgets one and made its summaries terser. Llama's score didn't move. This is also why the CLI and the dashboard share one default: an earlier version used different ones and reported different accuracy for the same models.
+
+**Hybrid router:** extraction and open-ended prompts to Llama, everything else to Qwen → **93% accuracy (vs 90% for Llama alone) at 37% lower electricity cost**. With 2–4 prompts per category, treat this as a hypothesis to validate on a larger set, not a result.
+
+**Next run:** add an API model (`-m openai:gpt-4o-mini` costs under a tenth of a cent for this suite at these token counts) to measure how far these local models are from the hosted ceiling and what closing that gap costs. To see every dashboard view with API models without any keys, turn on **Demo mode**, which uses clearly labelled simulated models.
 
 ## How the numbers are measured
 
@@ -202,7 +220,7 @@ slmbench/
   cli.py                headless runner
 config/pricing.json     editable price list with sources and verification date
 data/                   built-in suite + example JSONL
-tests/                  57 tests incl. a fake streaming server and a headless app test
+tests/                  61 tests incl. a fake streaming server and a headless app test
 ```
 
 ## Testing

@@ -8,6 +8,7 @@ the user edits a price or their electricity rate.
 from __future__ import annotations
 
 import json
+import os
 import re
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -127,9 +128,24 @@ class EnergyConfig:
     usd_per_kwh: float = 0.17
     enabled: bool = True
 
+    @classmethod
+    def from_env(cls) -> EnergyConfig:
+        """Defaults from ``SLMBENCH_DEVICE_WATTS`` / ``SLMBENCH_USD_PER_KWH``, shared by the dashboard and the CLI."""
+        return cls(
+            watts=_env_float("SLMBENCH_DEVICE_WATTS", cls.watts),
+            usd_per_kwh=_env_float("SLMBENCH_USD_PER_KWH", cls.usd_per_kwh),
+        )
+
     def energy(self, seconds: float | None) -> tuple[float, float]:
         """Return ``(watt_hours, usd)`` for a request that took ``seconds`` of wall time."""
         if not self.enabled or not seconds:
             return 0.0, 0.0
         wh = self.watts * seconds / 3600.0
         return wh, wh / 1000.0 * self.usd_per_kwh
+
+
+def _env_float(name: str, default: float) -> float:
+    try:
+        return float(os.getenv(name, default))
+    except ValueError:
+        return default

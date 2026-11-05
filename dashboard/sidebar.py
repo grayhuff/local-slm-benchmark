@@ -17,11 +17,10 @@ from slmbench.costs import EnergyConfig, PricingTable
 from slmbench.providers import ollama, remote_availability
 from slmbench.providers.base import estimate_tokens
 from slmbench.providers.simulated import DEMO_PROFILES
-from slmbench.schemas import GenerationParams, ModelSpec, PromptItem
+from slmbench.schemas import DEFAULT_SYSTEM_PROMPT, GenerationParams, ModelSpec, PromptItem
 from slmbench.scoring import available_scorers
 
 MAX_MODELS = 4
-DEFAULT_SYSTEM_PROMPT = "You are a helpful, concise assistant."
 EXAMPLE_JSONL = PROJECT_ROOT / "data" / "example_prompts.jsonl"
 # Rough output length used only for the pre-run cost estimate.
 ASSUMED_OUTPUT_TOKENS = 150
@@ -47,13 +46,6 @@ class SidebarConfig:
 @st.cache_data(ttl=15, show_spinner=False)
 def cached_ollama_status(base_url: str) -> ollama.OllamaStatus:
     return ollama.get_status(base_url)
-
-
-def _env_float(name: str, default: float) -> float:
-    try:
-        return float(os.getenv(name, default))
-    except ValueError:
-        return default
 
 
 def _remote_label(spec: str, pricing: PricingTable) -> str:
@@ -264,17 +256,16 @@ def render_sidebar(pricing: PricingTable) -> SidebarConfig:
                 help="An LLM grades open-ended answers against a reference. It runs after the benchmark so it can't affect timings.",
             )
         with st.expander("Cost & scoring", icon=":material/payments:"):
+            energy_defaults = EnergyConfig.from_env()
             watts = st.number_input(
                 "Device power draw (W)",
                 1.0,
                 2000.0,
-                _env_float("SLMBENCH_DEVICE_WATTS", 60.0),
+                energy_defaults.watts,
                 5.0,
                 help="Whole-system draw during inference. Rough guide: Apple M-series laptop 30–60 W, gaming desktop with RTX 4090 350–500 W.",
             )
-            kwh = st.number_input(
-                "Electricity price ($/kWh)", 0.0, 2.0, _env_float("SLMBENCH_USD_PER_KWH", 0.17), 0.01, format="%.2f"
-            )
+            kwh = st.number_input("Electricity price ($/kWh)", 0.0, 2.0, energy_defaults.usd_per_kwh, 0.01, format="%.2f")
             include_energy = st.toggle("Include electricity in local cost", True)
             tolerance = st.slider(
                 "'Good enough' accuracy tolerance (pts)",

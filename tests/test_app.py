@@ -3,6 +3,7 @@
 from streamlit.testing.v1 import AppTest
 
 from slmbench.config import PROJECT_ROOT
+from slmbench.schemas import DEFAULT_SYSTEM_PROMPT
 
 APP = str(PROJECT_ROOT / "app.py")
 
@@ -22,6 +23,7 @@ def test_demo_run_renders_results():
     result = at.session_state["result"]
     assert result is not None and result.simulated
     assert len(result.records) == 4 * 14
+    assert result.config["system_prompt"] == DEFAULT_SYSTEM_PROMPT  # same default as the CLI
     markdown = " ".join(m.value for m in at.markdown)
     assert "Recommendation" in markdown
     assert "As a config you could ship" in markdown  # hybrid router tab rendered

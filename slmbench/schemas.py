@@ -9,6 +9,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+# Shared by the dashboard and the CLI. Small models are sensitive to the system
+# prompt, so two entry points with different defaults report different accuracy.
+DEFAULT_SYSTEM_PROMPT = "You are a helpful, concise assistant."
+
 
 @dataclass
 class PromptItem:
